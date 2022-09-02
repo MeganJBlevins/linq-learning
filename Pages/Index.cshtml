@@ -1,0 +1,285 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Linq Learning";
+}
+<style>
+    .card {
+        margin-top: 40px;
+        padding: 15px;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 10px;
+    }
+</style>
+<div class="text-center">
+    <h1 class="display-4">Hearo Dogs</h1>
+    <div class="grid">
+        <div style="max-width: 300px">
+            <h2>All Dogs</h2>
+            <ul style="list-style-type: none">
+                @foreach(var dog in Model.AllDogs){
+                    <li>@Html.Raw(Json.Serialize(@dog))</li>
+                }
+            </ul>
+        </div>
+        <div style="max-width: 300px">
+            <h2>All Owners</h2>
+            <ul style="list-style-type: none">
+                @foreach(var owner in Model.AllOwners){
+                    <li>@Html.Raw(Json.Serialize(@owner))</li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="grid">
+        @* Filtering Operators *@
+        <div class="card">
+            <h2>Filtering Operators</h2>
+            <code>AllDogs.Where(d => d.OwnerId == ownerId).ToList()</code>
+            <select name="owners" id="filter_dogs">
+                <option selected>Select Owner</option>
+                @foreach(var owner in Model.AllOwners){
+                    <option value="@owner.Id">@owner.Name</option>
+                }
+            </select>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul id="filterDogsResults"></ul>
+            </div>
+        </div>
+        
+        @* Join Operators *@
+        <div class="card">
+            <h2>Join Operators</h2>
+            <code>allOwners.Join(allDogs,<br />
+                owner => owner.Id,
+                dog => dog.OwnerId,<br />
+                (owner, dog) => new {
+                    Owner = owner, 
+                    Dog = dog
+                }).Where(ownerAndDogs => ownerAndDogs.Dog.Id == id).ToList()
+               </code>
+            <select name="owners" id="get_owner">
+                <option selected>Select Dog</option>
+                @foreach(var dog in Model.AllDogs){
+                    <option value="@dog.Id">@dog.Name</option>
+                }
+            </select>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul id="getOwnerResult"></ul>
+            </div>
+        </div>
+
+        @* Projection Operations *@
+        <div class="card">
+            <h2>Projection Operations</h2>
+            <p>Joining dogs and owners to show the dog and type of dog for each owner.</p>
+            <code>allOwners.Join(allDogs,<br />
+                owner => owner.Id,
+                dog => dog.OwnerId,<br />
+                (owner, dog) => new {
+                    Owner = owner, 
+                    Dog = dog
+                }).Where(ownerAndDogs => ownerAndDogs.Owner.Id == id)<br />.Select(p => new { DogName = p.Dog.Name, DogType = p.Dog.Type});
+               </code>
+            <select name="owners" id="projection_select">
+                <option selected>Select Owner</option>
+                @foreach(var owner in Model.AllOwners){
+                    <option value="@owner.Id">@owner.Name</option>
+                }
+            </select>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul id="getDogNamesAndTypes"></ul>
+            </div>
+        </div>
+
+        @* Sorting Operators *@
+        <div class="card">
+            <h2>Sorting Operators</h2>
+            <code>
+                AllDogs.OrderByDescending(d => d.Age).ToList()
+            </code>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul>
+                    @foreach(var dog in Model.SortedDogs) {
+                        <li>@dog.Name is @dog.Age years old.</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        
+        @* Grouping Operators *@
+        <div class="card">
+            <h2>Grouping Operators</h2>
+            <code>
+                 allDogs.GroupBy(<br/>
+                    p => p.Age,<br/>
+                    p => p.Name, <br/>
+                    (key, g) => new { Key = key.ToString(), Dogs = g.ToList() });
+            </code>
+             <select name="grouping" id="grouping_select">
+                <option selected>Select Property</option>
+                <option value="Age">Age</option>
+                <option value="Size">Size</option>
+            </select>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul id="groupingResults"></ul>
+            </div>
+        </div>
+
+        @* Conversions *@
+        <div class="card">
+            <h2>Conversions</h2>
+            <p>Using ofType</p>
+            <code>
+                allOwners.ToList();
+            </code>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul id="conversionsResults">
+                    @foreach (var person in Model.AllOwners)
+                    {
+                        <li>@Html.Raw(Json.Serialize(@person))</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+         @* Concatenation *@
+        <div class="card">
+            <h2>Concatenation</h2>
+            <code>
+                allOwners.Select(owner => owner.Name).Concat(allDogs.Select(dog => dog.Name));
+            </code>
+            <div class="results">
+                <h3>Results: </h3>
+                <ul id="conversionsResults">
+                    @foreach (var name in Model.Names)
+                    {
+                        <li>@name</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+         @* Aggregation *@
+        <div class="card">
+            <h2>Aggregation</h2>
+            <code>
+                allDogs.Select(d => d.Age).Average();
+            </code>
+            <div class="results">
+                <h3>Results: </h3>
+                <p>Average Dog Age: @Model.AverageDogAge</p>
+            </div>
+        </div>
+
+         @* Quantifier Operations *@
+        <div class="card">
+            <h2>Quantifier Operations</h2>
+            <code>
+                allDogs.Any(d => d.Age.ToString() == age.ToString());
+            </code>
+            <select name="dogs" id="quantifier_select">
+                <option selected>Select Age</option>
+                @foreach(int index in Enumerable.Range( 1, 10 )){
+                    <option value="@index">@index</option>
+                }
+            </select>
+            <div class="results">
+                <h3>Are there any dogs that age? : </h3>
+                <div id="quantifierResults"></div>
+            </div>
+        </div>
+
+         @* Partition Operators *@
+        <div class="card">
+            <h2>Partition Operators</h2>
+            <code>
+                AllDogs.OrderByDescending(d => d.Age).Take(3).ToList();
+            </code>
+            <div class="results">
+                <h3>Three Oldest Dogs: </h3>
+                <ul>
+                    @foreach(var dog in Model.ThreeDogs){
+                        <li>@dog.Name</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+         @* Generation Operations *@
+        <div class="card">
+            <h2>Generation Operations</h2>
+            <p>I'll use range.</p>
+            <code>
+                Enumerable.Range(1, 5);
+            </code>
+            <div class="results">
+                <h3>Numbers 1 - 5</h3>
+                <ul>
+                    @foreach(var num in Model.Numbers){
+                        <li>@num</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        
+        @* Set Operations *@
+        <div class="card">
+            <h2>Set Operations</h2>
+            <p>I'll use Except. I created a new list with all the dogs but AnnaLeigh in it.</p>
+            <code>
+                AllDogs.Except(newDogList).ToList();
+            </code>
+            <div class="results">
+                <h3>Dog that is not in new list:</h3>
+                <ul>
+                    @foreach(var dog in Model.AllDogs.Except(Model.NewDogList).ToList()){
+                        <li>@dog.Name</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        
+        @* Equality *@
+        <div class="card">
+            <h2>Equality</h2>
+            <p>Using the same new list I created above that is NOT equal to the all dogs list</p>
+            <code>
+                AllDogs.SequenceEqual(newDogList);
+            </code>
+            <div class="results">
+                <h3>Are these lists the same? </h3>
+                <ul>
+                    @Model.NewDogList.SequenceEqual(Model.AllDogs).ToString()
+                </ul>
+            </div>
+        </div>
+        
+        @* Element Operators *@
+        <div class="card">
+            <h2>Element Operators</h2>
+            <p>Returning the oldest dog by ordering then returning the last.</p>
+            <code>
+                AllDogs.OrderBy(d => d.Age).Last().Name;
+            </code>
+            <div class="results">
+                <h3>Who is the oldest dog?</h3>
+                <ul>
+                   @Model.AllDogs.OrderBy(d => d.Age).Last().Name
+                </ul>
+            </div>
+        </div>
+    
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

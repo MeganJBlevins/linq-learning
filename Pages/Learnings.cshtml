@@ -1,0 +1,17 @@
+﻿@page
+@model LearningsModel
+@{
+    ViewData["Title"] = "What I've Learned";
+}
+<h1>@ViewData["Title"]</h1>
+
+<ul>
+    <li>LINQ queries don't run until they're used.... like when you add it .ToList() or when you do a foreach on the query. If you don't add it to a list, it will re-query each time it's run.</li>
+    <li>Honestly, I didn't know exactly how grouping was working... but it's much clearer now.</li>
+    <li>Hadn't ever concatenated using linq before!</li>
+</ul>
+<h3>Non-LINQ learning along the way...</h3>
+<ul>
+    <li>In order to get my api routes to work, I had to add this to Program.cs: app.MapDefaultControllerRoute();</li>
+    <li>Transforming XML in C# is new to me. This was a whole new learning. Creating and reading XML. </li>
+</ul>

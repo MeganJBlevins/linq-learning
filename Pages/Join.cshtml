@@ -1,0 +1,41 @@
+@page
+@model Join
+@{
+    ViewData["Title"] = "Linq Learning";
+}
+
+<div>
+    <h1>Join Different Types</h1>
+    <h2>I'm using XML to Object</h2>
+    <code>
+        @Model.xml
+    </code>
+    <p>Transform XML to enumerable</p>
+    <code>
+        XDocument.Parse(xml); <br />
+        var homes = (from _home in Homes.Element("Homes").Elements("Home")<br/>
+        select new Home()<br/>
+        {<br/>
+        OwnerId = Int32.Parse(_home.Attribute("OwnerId").Value),<br/>
+        HouseColor = _home.Attribute("HouseColor").Value,<br/>
+        Address = _home.Attribute("Address").Value<br/>
+        });<br/>
+    </code>
+    <h2>Then join owners and homes to create a list with owners and their home data.</h2>
+    <code>
+        var result = from owner in allOwners<br/>
+        join house in homes on owner.Id equals house.OwnerId<br/>
+        select new OwnerData<br/>
+        {<br/>
+        OwnerId = owner.Id,<br/>
+        OwnerName = owner.Name,<br/>
+        Address = house.Address,<br/>
+        HomeColor = house.HouseColor,<br/>
+        };<br/>
+    </code>
+    <h2>Returns: </h2>
+    <code>
+        @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.FullList, 
+            Newtonsoft.Json.Formatting.Indented))
+    </code>
+</div>
